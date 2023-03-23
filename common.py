@@ -103,7 +103,7 @@ def expanded_node_list(nodes):
                 node_list.extend(list_from_file)
         else:
             node_list.append(h)
-    # logger.info("full list of hosts: %s" % str(full_node_list))
+    logger.info("full list of hosts: %s" % str(node_list))
     return node_list
 
 
@@ -114,9 +114,10 @@ def get_localnode(nodes):
 
     # if more than one node is listed, fallback to pdsh
     nodes_list = expanded_node_list(nodes)
-    if len(nodes_list) > 1:
-        return None
+    #if len(nodes_list) > 1:
+    #    return None
 
+    logger.info("nodes list size is: %s" % str(len(nodes_list)))
     local_fqdn = get_fqdn_local()
     local_hostname = socket.gethostname()
     local_short_hostname = local_hostname.split('.')[0]
@@ -152,8 +153,10 @@ def pdsh(nodes, command, continue_if_error=True):
 def pdcp(nodes, flags, localfile, remotefile):
     local_node = get_localnode(nodes)
     if local_node:
+        logger.info("dont fall back to pdsh")
         return sh(local_node, ['cp', flags, localfile, remotefile], continue_if_error=False)
     else:
+        logger.info(" fall back to pdsh")
         pdcp_cmd = settings.common.get("pdcp_cmd", "pdcp")
         pdsh_ssh_args = settings.common.get("pdsh_ssh_args", None)
         env = {}
